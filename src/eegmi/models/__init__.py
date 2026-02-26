@@ -1,0 +1,1 @@
+"""Compact CNN model definitions."""

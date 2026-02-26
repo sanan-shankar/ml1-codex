@@ -1,0 +1,177 @@
+{
+  "experiment": {
+    "name": "fastiter_eegnet_ea_family_stagea_base_late_imagft_default_earef_12subjects",
+    "seed": 42,
+    "output_root": "outputs/fastiter",
+    "device": "cpu"
+  },
+  "data": {
+    "data_root": "/Users/sanan/Desktop/ML/my-ml1/files",
+    "subjects": [
+      "S001",
+      "S002",
+      "S003",
+      "S004",
+      "S005",
+      "S006",
+      "S007",
+      "S008",
+      "S009",
+      "S010",
+      "S011",
+      "S012"
+    ],
+    "channels": [
+      "FC5",
+      "FC3",
+      "FC1",
+      "FCZ",
+      "FC2",
+      "FC4",
+      "FC6",
+      "C5",
+      "C3",
+      "C1",
+      "CZ",
+      "C2",
+      "C4",
+      "C6",
+      "CP5",
+      "CP3",
+      "CP1",
+      "CPZ",
+      "CP2",
+      "CP4",
+      "CP6",
+      "FZ",
+      "PZ"
+    ],
+    "sfreq": 160,
+    "tmin": 0.5,
+    "tmax": 4.5,
+    "baseline_window_len": 641,
+    "baseline_window_stride": 641,
+    "bandpass": [
+      8.0,
+      30.0
+    ],
+    "notch": null,
+    "reref": null,
+    "csd": false,
+    "rest_zscore": true,
+    "euclidean_alignment": true,
+    "stage_time_windows": {
+      "stage_a": [
+        1.0,
+        4.5
+      ],
+      "stage_b": [
+        0.5,
+        4.0
+      ],
+      "stage_a_finetune_imagery": [
+        0.5,
+        4.0
+      ]
+    },
+    "cache": {
+      "enabled": false,
+      "dir": "outputs/cache",
+      "version": "v3"
+    },
+    "euclidean_alignment_time_window": [
+      0.5,
+      4.0
+    ]
+  },
+  "split": {
+    "seed": 42,
+    "n_train_pool": 9,
+    "n_test": 3,
+    "inner_val_count": 2,
+    "path": null
+  },
+  "augmentation": {
+    "enabled": true,
+    "gaussian_noise_std": 0.01,
+    "time_shift_max": 8,
+    "amplitude_scale_min": 0.95,
+    "amplitude_scale_max": 1.05
+  },
+  "model": {
+    "type": "eegnet",
+    "dropout": 0.4,
+    "eegnet": {
+      "F1": 12,
+      "D": 2,
+      "F2": 24,
+      "kernel_length": 64,
+      "sep_kernel_length": 16
+    }
+  },
+  "train": {
+    "num_workers": 0,
+    "batch_size": 64,
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "max_epochs": 20,
+    "patience": 4,
+    "min_delta": 0.0005,
+    "use_balanced_sampler": true,
+    "weighted_loss": true,
+    "stage_a": {
+      "batch_size": 64,
+      "lr": 0.001,
+      "max_epochs": 20,
+      "patience": 4,
+      "sampler_strategy": "stage_a_runkind_label"
+    },
+    "stage_a_family_heads": {
+      "enabled": false
+    },
+    "stage_b": {
+      "batch_size": 64,
+      "lr": 0.001,
+      "max_epochs": 25,
+      "patience": 5
+    },
+    "stage_b_family_heads": {
+      "enabled": true
+    },
+    "fine_tune_imagery_stage_a": {
+      "enabled": true,
+      "lr": 0.0003,
+      "max_epochs": 6,
+      "patience": 2,
+      "batch_size": 64,
+      "sampler_strategy": "stage_a_runkind_task_label"
+    },
+    "fine_tune_imagery": {
+      "enabled": true,
+      "lr": 0.0003,
+      "max_epochs": 8,
+      "patience": 3,
+      "batch_size": 64
+    }
+  },
+  "eval": {
+    "run_kinds": [
+      "combined",
+      "executed",
+      "imagined"
+    ],
+    "stage_b_task_type_masking": true,
+    "calibrate_stage_a_thresholds": false,
+    "stage_a_tta_time_shifts": [
+      -16,
+      0,
+      16
+    ],
+    "plots": {
+      "psd": false,
+      "erd_topomap": false,
+      "learning_curves": true,
+      "saliency_samples": 0
+    }
+  }
+}
