@@ -8,6 +8,8 @@ import torch.nn as nn
 from eegmi.models.eegnet import EEGNet
 from eegmi.models.fbcnet import FBCNetLite
 from eegmi.models.fusion import EEGFusionNetLite
+from eegmi.models.paper_cla import PaperCnnLstmAttention
+from eegmi.models.paper_cnn_gru import PaperCnnGru1D
 from eegmi.models.shallow_fbcsp import ShallowFBCSPNet
 
 
@@ -33,4 +35,13 @@ def build_model(model_cfg: dict[str, Any], *, n_chans: int, n_times: int, n_clas
     if model_type in {"fusion", "eegfusion", "eegnet_fusion", "eegfusionnet"}:
         params = dict(model_cfg.get("fusion", {}))
         return EEGFusionNetLite(n_chans=n_chans, n_times=n_times, n_classes=n_classes, dropout=dropout, **params)
+    if model_type in {"paper_cnn_gru", "cnn_gru", "paper_cnn_bigru", "cnn_bigru"}:
+        params = dict(model_cfg.get("paper_cnn_gru", {}))
+        # Allow "cnn_bigru" alias to force bidirectional=True unless explicitly set.
+        if model_type in {"paper_cnn_bigru", "cnn_bigru"} and "bidirectional" not in params:
+            params["bidirectional"] = True
+        return PaperCnnGru1D(n_chans=n_chans, n_times=n_times, n_classes=n_classes, dropout=dropout, **params)
+    if model_type in {"paper_cla", "cnn_lstm_attention", "paper_cnn_lstm_attention"}:
+        params = dict(model_cfg.get("paper_cla", {}))
+        return PaperCnnLstmAttention(n_chans=n_chans, n_times=n_times, n_classes=n_classes, dropout=dropout, **params)
     raise ValueError(f"Unsupported model type: {model_type}")

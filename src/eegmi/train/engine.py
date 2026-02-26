@@ -12,6 +12,7 @@ from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
 
 from eegmi.data.dataset import EEGEpochDataset, stage_targets
+from eegmi.data.smote import smote_cfg_for_stage, smote_like_augment_dataset
 from eegmi.train.checkpointing import save_checkpoint
 from eegmi.train.logging import append_jsonl, save_history, save_history_csv
 from eegmi.train.losses import make_cross_entropy_loss
@@ -184,6 +185,18 @@ def train_stage(
     min_delta = float(train_cfg.get("min_delta", 0.0))
     num_workers = int(train_cfg.get("num_workers", 0))
     sampler_strategy = str(train_cfg.get("sampler_strategy", "targets"))
+
+    smote_cfg = smote_cfg_for_stage(train_cfg, stage_name)
+    if smote_cfg is not None:
+        train_dataset = smote_like_augment_dataset(
+            train_dataset,
+            ratio=float(smote_cfg.get("ratio", 1.0)),
+            max_new_samples=smote_cfg.get("max_new_samples"),
+            lambda_min=float(smote_cfg.get("lambda_min", 0.1)),
+            lambda_max=float(smote_cfg.get("lambda_max", 0.9)),
+            seed=int(smote_cfg.get("seed", 42)),
+            stage_name=stage_name,
+        )
 
     train_loader = _make_loader(
         train_dataset,
